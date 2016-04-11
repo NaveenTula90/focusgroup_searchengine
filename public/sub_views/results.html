@@ -1,0 +1,28 @@
+      <div ng-controller="GoogleSearch">
+   <div class="row">
+       <div class="col-md-offset-1 col-md-3">
+         <label>
+         Results
+         </label>
+ 
+            <div ng-repeat="friend in filteredFriends">
+               {{friend._id}}
+            </div>
+            <pagination total-items="totalItems" items-per-page="itemsPerPage" 
+               ng-model="currentPage" ng-change="pageChanged()"></pagination>
+            <p>
+               Total items: {{totalItems}}<br />
+               Items per page: {{itemsPerPage}}<br />
+               Current Page: {{currentPage}}
+            </p>
+
+      </div>
+        <div class="col-md-3">
+            s
+        </div>
+        <div class="col-md-3">
+            s
+        </div>       
+   </div>
+
+</div>

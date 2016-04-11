@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="csce2110">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+      <title>CSCE 2110  Focus Group</title>
+      <!-- Bootstrap -->
+      <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+      <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>-->
+      <!--<script src="javascripts/bootbox.min.js"></script>-->
+      <script src="jquery/dist/jquery.min.js"></script>
+      <script src="angular/angular.min.js"></script>
+      <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+      <script src="bootbox/bootbox.js"></script>
+      <script src="ngBootbox/dist/ngBootbox.js"></script>
+	  <script src="javascripts/ngRoute.js"></script>
+	  <script src="javascripts/ui-bootstrap-tpls-0.13.0.min.js"></script>
+      <script src="javascripts/angular-smart-table/dist/smart-table.min.js"></script>
+      <script>
+         var myApp = angular.module('csce2110', ['smart-table','ngBootbox','ngRoute','ui.bootstrap'])
+		 
+		 myApp.config(['$routeProvider',
+			  function($routeProvider) {
+				$routeProvider.
+				  when('/home', {
+					templateUrl: 'sub_views/home.html',
+					controller: 'GoogleSearch'
+				  }).
+				  when('/results', {
+					templateUrl: 'sub_views/results.html',
+					controller: 'Results'
+				  }).
+				  otherwise({
+					redirectTo: '/home'
+				  });
+			  }]);
+					 
+		 myApp.controller('Results',function($scope, $http,$ngBootbox,$window){
+			
+			$scope.data =[];
+                            
+			$http.get('/api/results'). success(function(data) {
+					$scope.friends = data;//friendsFactory.query();	 $scope.data = data;
+                                        
+                                        $scope.totalItems = $scope.friends.length;
+                                                         $scope.$watch('currentPage + itemsPerPage', function() {
+                                                           var begin = (($scope.currentPage - 1) * $scope.itemsPerPage),
+                                                             end = begin + $scope.itemsPerPage;
+
+                                                           $scope.filteredFriends = $scope.friends.slice(begin, end);
+                                                         });        
+                                        
+                        });
+                        
+
+                         $scope.itemsPerPage = 1
+                         $scope.currentPage = 1;
+
+                         // $scope.maxSize = 5;
+                         // $scope.bigTotalItems = 175;
+                         // $scope.bigCurrentPage = 1;
+
+                         $scope.pageCount = function () {
+                           return Math.ceil($scope.friends.length / $scope.itemsPerPage);
+                         };
+
+                 
+                     
+		
+			
+		 
+		 });
+		 myApp.controller('GoogleSearch',function($scope, $http,$ngBootbox,$window){
+         $scope.itemsByPage=15;
+            $scope.rowCollection = [
+         //{title: 'test', description :'Renard', link:'http://www.google.com'},
+         //{title: 'Laurent', description :'Renard', link:'http://www.google.com'}
+         ];
+            $scope.searchCriteria = {firstname : '',
+                lastname : ''};
+             $scope.searchTimes = 0;
+             $scope.searchChanges = 0;
+             $scope.linksViewed = 0;
+             $scope.linksRevisited = 0;
+             $scope.searchterms = [];
+             $scope.urlsVisited = [];
+             $scope.currentSearchPhrase = '';
+             
+             $scope.visitUrl =function(url){
+                 if ($scope.urlsVisited.indexOf(url) == -1) {
+                      $scope.linksViewed++;
+                      $scope.urlsVisited.push(url);
+                 }
+                 else{
+                     $scope.linksRevisited++;
+                 }
+                  $window.open( url, '_blank');
+             }
+             $scope.solve = function(row){
+                    if( $scope.myform.$valid){
+                        $ngBootbox.confirm('Are you sure this link contents your solution?If so, click OK.')
+                               .then(function() {
+                                   send_data = {
+                                       searchTimes : $scope.searchTimes,
+                                       searchChanges : $scope.searchChanges,
+                                       linksViewed : $scope.linksViewed,
+                                       linksRevisited : $scope.linksRevisited,
+                                       currentSearchPhrase : $scope.currentSearchPhrase,
+                                       firstname : $scope.searchCriteria.firstname,
+                                       lastname : $scope.searchCriteria.lastname,
+                                       description : row.description,
+                                       title : row.title,
+                                       link : row.link,
+                                       urlsVisited : $scope.urlsVisited,
+                                       searchterms : $scope.searchterms
+                                   }
+                               console.log('sent');
+                            $http.post('/api/results',send_data).
+                                 success(function(data) {
+                                         
+                                        $ngBootbox.alert('Done').then(function() {
+                                            $scope.currentSearchPhrase  = '';
+                                            $scope.rowCollection = [];
+                                            $scope.searchTimes = 0;
+                                            $scope.searchChanges = 0;
+                                            $scope.linksViewed = 0;
+                                            $scope.linksRevisited = 0;
+                                            $scope.searchterms = [];
+                                            $scope.urlsVisited = [];
+                                     });
+                                  });
+                               }, function() {
+                                   console.log('Confirm dismissed!');
+                               });
+                 
+                    }
+                    else{
+                        $ngBootbox.alert('Please fill in form before submitting a solution')
+                    }
+    
+             };
+             $scope.submit = function(){
+                 $scope.searchTimes++;
+                 if ($scope.searchterms.indexOf($scope.currentSearchPhrase) == -1) {
+                      $scope.searchChanges++;
+                      $scope.searchterms.push($scope.currentSearchPhrase);
+                 }
+                      $scope.rowCollection =[]
+                 
+                 
+               $http.post('/search', {search : $scope.currentSearchPhrase}).
+                    success(function(data) {
+                        data.forEach(function(entry) {
+                                $scope.rowCollection.push( entry);
+                            });
+                     });
+                    
+             }
+             
+         })
+                 
+                 
+                 ;
+      </script>
+   </head>
+   <body>
+           <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" >CSCE 2110 Focus Group</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+  
+<li class="dropdown">
+          <a href="/home" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Contact <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#/home">quentinmayo@my.unt.edu</a></li>
+
+            <!--<li class="divider"></li>
+            <li><a href="#"></a></li>-->
+          </ul>
+        </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+	<div class="containter" style="margin-top:100px" >
+            <div ng-view=""></div>
+	</div>
+
+   </body>
+</html>

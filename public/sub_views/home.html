@@ -1,0 +1,99 @@
+      <div ng-controller="GoogleSearch">
+         <div class="row">
+            <div class="col-md-offset-1 col-md-3">
+               <div class="panel panel-primary">
+                  <div class="panel-heading">
+                      <center>Search (Focus Group)</center>
+                  </div>
+                  <div class="panel-body">
+                     <form ng-submit="submit()" name="myform">
+                        <label class="" for="firstname">First Name: (Enter your first name)</label> 
+                        <input id="firstname" name="firstname" type="text" ng-model="searchCriteria.firstname" placeholder="Joe" class="form-control input-md" required=""><br>
+                        <label for="lastname">Last Name: (Enter your last name)</label>
+                        <input id="lastname" name="lastname" type="text" ng-model="searchCriteria.lastname" placeholder="Doe" class="form-control input-md"><br>
+                        <label  for="programgoal">Program Goal: (What is the goal of your programming assignment?)</label>
+                        <textarea class="form-control" id="programgoal" name="programgoal" required=""></textarea>
+                        <br>
+                        <label for="ProgramDescription">Program Description: (Write a simple description about the problem that you are trying to solve)</label>
+                        <textarea class="form-control" id="ProgramDescription" name="ProgramDescription" required=""></textarea>
+                        <br>
+                        <label  for="search">Search: (Enter your search terms)</label>  
+                        <div class="input-group">
+                           <input id="search"  class="form-control" name="search" ng-model="currentSearchPhrase" type="text" placeholder="Ex: C++ null pointer error in array" class="form-control input-md" required=""><br>
+                           <span class="input-group-btn">
+                           <button class="btn btn-primary" type="submit">Search</button>
+                           </span>
+                        </div>
+                     </form>
+                     <hr>
+                     Status
+                     <table class="table table-hover">
+                        <tbody>
+                           <tr>
+                              <td>Time Search#</td>
+                              <td> {{searchTimes}}</td>
+                           </tr>
+                           <tr>
+                              <td>Times you Change input</td>
+                              <td> {{searchChanges}}</td>
+                           </tr>
+                           <tr>
+                              <td>Links Viewed</td>
+                              <td> {{linksViewed }}</td>
+                           </tr>
+                           <tr>
+                              <td>Revisited Links</td>
+                              <td> {{linksRevisited }}</td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+                  <div class="panel-footer  ">
+                     <div class="pull-right">
+                        <!-- clearfix<a href="#" class="btn btn-success">Done?</a>-->
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-md-7">
+               <div class="panel panel-primary">
+                  <div class="panel-heading">
+                      <center>Google Search Results</center>
+                  </div>
+                  <div class="panel-body">
+                     <table  st-table="rowCollection"  class="table table-striped">
+                        <thead>
+                           <tr>
+                              <th>#</th>
+                              <th colspan="4">Description</th>
+                              <th>Solution?</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr ng-repeat="row in rowCollection">
+                              <td>{{$index+1}}</td>
+                              <td colspan="4"><a ng-click="visitUrl(row.link)" href="" style="text-decoration: underline">{{row.title}}</a><br />
+							  <span style="color:green">{{row.link}}</span><br/>
+							  {{row.description}}</td>
+                              <td><a class="btn btn-xs btn-success" ng-click="solve(row);">Solution</a></td>
+                           </tr>
+                           <tr ng-show="!rowCollection.length">
+                               <td colspan="6">
+                        <center>No Search Results</center>
+                               </td>
+                              </tr>
+                        </tbody>
+                        <!--<tfoot>
+                           <tr> 
+                           	<td colspan="5" class="text-center">
+                           		<div st-pagination="" st-items-by-page="1" st-displayed-pages="7"></div>
+                           	</td>
+                           </tr>
+                           </tfoot>-->
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
